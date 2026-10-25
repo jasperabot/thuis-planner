@@ -12,20 +12,20 @@ export const NAV: NavGroup[] = [
     title: 'Overview',
     items: [
       { path: '', label: 'Playground' },
-      { path: 'getting-started', label: 'Getting started' },
+      //{ path: 'getting-started', label: 'Getting started' },
     ],
   },
-  {
-    title: 'Guides',
-    items: [
-      { path: 'views', label: 'Views' },
-      { path: 'theming', label: 'Theming' },
-      { path: 'interactions', label: 'Interactions' },
-      { path: 'recurrence', label: 'Recurrence' },
-    ],
-  },
-  {
-    title: 'Reference',
-    items: [{ path: 'reference', label: 'Integration & API' }],
-  },
+  // {
+  //   title: 'Guides',
+  //   items: [
+  //     { path: 'views', label: 'Views' },
+  //     { path: 'theming', label: 'Theming' },
+  //     { path: 'interactions', label: 'Interactions' },
+  //     { path: 'recurrence', label: 'Recurrence' },
+  //   ],
+  // },
+  // {
+  //   title: 'Reference',
+  //   items: [{ path: 'reference', label: 'Integration & API' }],
+  // },
 ];

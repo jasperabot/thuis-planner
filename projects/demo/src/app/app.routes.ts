@@ -9,13 +9,13 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./pages/playground/playground').then((m) => m.Playground),
-    title: 'Angular Calendar & Scheduler — themeable, signals-first (free, open-source)',
-    data: {
-      description:
-        'Interactive playground for @ascentsparksoftware/angular-calendar: a themeable, ' +
-        'signals-first Angular 22 calendar and resource scheduler. Month, week, day, timeline, ' +
-        'agenda and year views; timezone-correct; RRULE recurrence; drag/resize; OKLCH theming.',
-    },
+    // title: 'Angular Calendar & Scheduler — themeable, signals-first (free, open-source)',
+    // data: {
+    //   description:
+    //     'Interactive playground for @ascentsparksoftware/angular-calendar: a themeable, ' +
+    //     'signals-first Angular 22 calendar and resource scheduler. Month, week, day, timeline, ' +
+    //     'agenda and year views; timezone-correct; RRULE recurrence; drag/resize; OKLCH theming.',
+    // },
   },
   {
     path: 'getting-started',

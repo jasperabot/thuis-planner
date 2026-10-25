@@ -1,4 +1,4 @@
-<header class="site-header">
+<!-- <header class="site-header">
   <a class="brand" routerLink="/" (click)="closeMenu()">
     <span class="brand__mark" aria-hidden="true">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
@@ -55,39 +55,20 @@
       ☰
     </button>
   </div>
-</header>
+</header> -->
 
 <div class="site-layout">
-  <aside class="site-nav" [class.site-nav--open]="menuOpen()">
-    <nav aria-label="Documentation">
-      @for (group of nav; track group.title) {
-        <div class="nav-group">
-          <p class="nav-group__title">{{ group.title }}</p>
-          <ul>
-            @for (item of group.items; track item.path) {
-              <li>
-                <a
-                  [routerLink]="'/' + item.path"
-                  routerLinkActive="nav-link--active"
-                  [routerLinkActiveOptions]="{ exact: item.path === '' }"
-                  (click)="closeMenu()"
-                  >{{ item.label }}</a
-                >
-              </li>
-            }
-          </ul>
-        </div>
-      }
-    </nav>
+  <aside class="site-nav">
     <div class="nav-footer">
-      <a href="https://ascentspark.com" target="_blank" rel="noopener" aria-label="Ascentspark">
-        <img src="asc-logo-full.svg" alt="Ascentspark" />
+      <a href="https://kyollorente.com" target="_blank" rel="noopener" aria-label="kyollorente">
+        <img src="https://chatgpt.com/s/m_6ade5b1b15588191981a9991cffd2ad6" alt="kyollorente" />
       </a>
-      <span>MIT · built by Ascentspark</span>
+      <span>llorente-van-heijst · KYO</span>
     </div>
   </aside>
 
   <main class="site-main">
     <router-outlet />
   </main>
+  
 </div>
