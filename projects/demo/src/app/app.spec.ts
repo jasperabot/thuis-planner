@@ -10,13 +10,13 @@ describe('Demo shell', () => {
     }).compileComponents();
   });
 
-  it('renders the branded header and sidebar nav', async () => {
+  it('renders the routed app content without the legacy shell', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.brand__text strong')?.textContent).toContain('angular-calendar');
-    expect(el.querySelector('.site-nav')).toBeTruthy();
+    expect(el.querySelector('.app-shell')).toBeTruthy();
+    expect(el.querySelector('.brand__text')).toBeNull();
     expect(el.querySelector('router-outlet')).toBeTruthy();
   });
 });

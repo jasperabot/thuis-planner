@@ -301,6 +301,36 @@
   font-weight: 500;
 }
 
+.nav-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-block-start: 1.25rem;
+  padding-block-start: 0.9rem;
+  border-block-start: 1px solid var(--cal-line, #e4e4e7);
+  color: var(--cal-ink-muted, #71717a);
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+.nav-footer a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+.nav-footer img {
+  display: block;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.nav-footer span {
+  white-space: nowrap;
+  color: var(--cal-ink-muted, #71717a);
+}
+
 /* ── Calendar panel ──────────────────────────────────────────────────────── */
 .panel {
   border: 1px solid var(--cal-line, #e4e4e7);
