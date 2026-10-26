@@ -45,6 +45,28 @@ describe('CalEventDialog', () => {
     expect(el.textContent?.toLowerCase()).toContain('scheduled');
   });
 
+  it('renders assignee and frequency metadata in the default body', async () => {
+    const task = {
+      ...sample,
+      meta: {
+        assignee: 'carol',
+        frequency: 'weekly',
+      },
+    } as CalendarEvent<{ assignee: string; frequency: string }>;
+
+    TestBed.configureTestingModule({
+      providers: [provideCalendar(withDateAdapter(provideDateFnsAdapter()))],
+    });
+    const fixture = TestBed.createComponent(CalEventDialog);
+    fixture.componentRef.setInput('event', task);
+    fixture.componentRef.setInput('timezone', zone);
+    fixture.detectChanges();
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text.toLowerCase()).toContain('carol');
+    expect(text.toLowerCase()).toContain('weekly');
+  });
+
   it('resolves resourceIds to names when resources are supplied', async () => {
     TestBed.configureTestingModule({
       providers: [provideCalendar(withDateAdapter(provideDateFnsAdapter()))],

@@ -29,6 +29,8 @@ export class CalCalendarIntl {
   /** Event-dialog field labels. */
   dialogWhen = 'When';
   dialogStatus = 'Status';
+  dialogAssignee = 'Assignee';
+  dialogFrequency = 'Frequency';
   dialogRepeats = 'Repeats';
   /** Event-dialog value shown for a recurring event. */
   recurringEvent = 'Recurring event';

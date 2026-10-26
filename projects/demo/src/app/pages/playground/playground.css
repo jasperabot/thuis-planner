@@ -301,6 +301,73 @@
   font-weight: 500;
 }
 
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--cal-line, #e4e4e7);
+  border-radius: 12px;
+  background: var(--cal-surface, #fff);
+  margin-block-end: 0.8rem;
+}
+
+.calendar-nav__btn,
+.calendar-nav__picker {
+  border: 1px solid var(--cal-line, #e4e4e7);
+  background: var(--cal-surface-2, #f4f4f5);
+  color: var(--cal-ink-700, #3f3f46);
+  border-radius: 9px;
+  padding: 0.45rem 0.75rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.calendar-nav__btn {
+  cursor: pointer;
+}
+
+.calendar-nav__btn:hover {
+  border-color: var(--cal-line-strong, #d4d4d8);
+  background: var(--cal-surface-sunk, #e9e9eb);
+}
+
+.calendar-nav__btn--subtle {
+  border-color: transparent;
+  background: transparent;
+}
+
+.calendar-nav__label-wrap {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-inline-size: 0;
+}
+
+.calendar-nav__label {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--cal-ink, #18181b);
+  white-space: nowrap;
+}
+
+.calendar-nav__picker {
+  min-inline-size: 8.5rem;
+  cursor: pointer;
+}
+
+.calendar-nav__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .nav-footer {
   display: flex;
   align-items: center;

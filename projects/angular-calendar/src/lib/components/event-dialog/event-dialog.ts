@@ -115,9 +115,27 @@ export class CalEventDialog<TMeta = unknown> {
     return ids.map((id) => byId.get(id) ?? id).join(', ');
   }
 
+  protected assigneeValue(ev: CalendarEvent<TMeta>): string | undefined {
+    const value = metaValue(ev, 'assignee');
+    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+  }
+
+  protected frequencyValue(ev: CalendarEvent<TMeta>): string | undefined {
+    const value = metaValue(ev, 'frequency');
+    return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+  }
+
   protected isRecurring(ev: CalendarEvent<TMeta>): boolean {
     return ev.recurrenceRule !== undefined || ev.recurrenceId !== undefined;
   }
+}
+
+function metaValue<TMeta>(ev: CalendarEvent<TMeta>, key: 'assignee' | 'frequency'): unknown {
+  const meta = ev.meta;
+  if (typeof meta !== 'object' || meta === null) {
+    return undefined;
+  }
+  return (meta as Record<string, unknown>)[key];
 }
 
 function hostZone(): string {

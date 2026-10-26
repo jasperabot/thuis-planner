@@ -319,9 +319,10 @@ export function mapRowsToEvents(
 
     return {
       id,
-      title: task,
+      title: `${area}: ${task}`,
       start,
       end,
+      status: 'scheduled',
       isReadonly: true,
       ...(recurrenceRule ? { recurrenceRule } : {}),
       meta: {

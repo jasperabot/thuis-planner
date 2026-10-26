@@ -119,12 +119,75 @@
     </p>
   }
 
+  <section class="spreadsheet-import">
+    <h2>Import calendar events</h2>
+
+    <label for="csv-url">Published Google Sheets CSV URL</label>
+
+    <input
+      id="csv-url"
+      type="url"
+      [value]="sourceUrl()"
+      (input)="sourceUrl.set($any($event.target).value)"
+      placeholder="https://docs.google.com/spreadsheets/d/..."
+    />
+
+    <button
+      type="button"
+      [disabled]="loading()"
+      (click)="loadPublishedCsv()">
+      Load published CSV
+    </button>
+
+    <label for="spreadsheet-file">Or select spreadsheet</label>
+
+    <input
+      id="spreadsheet-file"
+      type="file"
+      accept=".csv,.xlsx,.xls"
+      [disabled]="loading()"
+      (change)="loadLocalFile($event)"
+    />
+
+    @if (loading()) {
+      <p>Loading spreadsheet…</p>
+    }
+
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+
+    @if (!error() && importedCount() > 0) {
+      <p role="status">Imported {{ importedCount() }} events.</p>
+    }
+  </section>
+
   <section class="panel" data-testid="calendar-demo">
+    @if (effectiveView() === 'month') {
+      <div class="calendar-nav" aria-label="Month navigation" role="group">
+        <button type="button" class="calendar-nav__btn" data-testid="month-prev" aria-label="Previous month" (click)="previousMonth()">Back</button>
+        <div class="calendar-nav__label-wrap">
+          <div class="calendar-nav__label">{{ monthLabel }}</div>
+          <input
+            type="month"
+            class="calendar-nav__picker"
+            [value]="monthPickerValue"
+            aria-label="Jump to month"
+            (change)="selectMonth($event)"
+          />
+        </div>
+        <div class="calendar-nav__actions">
+          <button type="button" class="calendar-nav__btn calendar-nav__btn--subtle" (click)="goToToday()">Today</button>
+          <button type="button" class="calendar-nav__btn calendar-nav__btn--next" data-testid="month-next" aria-label="Next month" (click)="nextMonth()">Next</button>
+        </div>
+      </div>
+    }
+
     @switch (effectiveView()) {
       @case ('month') {
         <cal-month-view
           [events]="filteredEvents()"
-          [viewDate]="viewDate"
+          [viewDate]="viewDate()"
           [today]="today"
           [themeMode]="mode()"
           [baseColor]="base()"
@@ -137,7 +200,7 @@
       @case ('week') {
         <cal-time-grid
           [events]="filteredEvents()"
-          [viewDate]="viewDate"
+          [viewDate]="viewDate()"
           [today]="today"
           [now]="now"
           [days]="7"
@@ -156,7 +219,7 @@
       @case ('day') {
         <cal-time-grid
           [events]="filteredEvents()"
-          [viewDate]="viewDate"
+          [viewDate]="viewDate()"
           [today]="today"
           [now]="now"
           [days]="1"
@@ -191,7 +254,7 @@
         <cal-timeline-view
           [events]="filteredJobs()"
           [resources]="resources"
-          [viewDate]="viewDate"
+          [viewDate]="viewDate()"
           [today]="today"
           [now]="now"
           [days]="1"
@@ -232,7 +295,7 @@
              rows. Uses the real `orientation` input (no fake resource lanes). -->
         <cal-time-grid
           [events]="filteredEvents()"
-          [viewDate]="viewDate"
+          [viewDate]="viewDate()"
           [today]="today"
           [now]="now"
           [days]="7"
@@ -251,7 +314,7 @@
       @case ('agenda') {
         <cal-agenda-view
           [events]="filteredEvents()"
-          [viewDate]="viewDate"
+          [viewDate]="viewDate()"
           [today]="today"
           [days]="30"
           [hideEmptyDays]="true"
@@ -265,7 +328,7 @@
       @case ('year') {
         <cal-year-view
           [events]="filteredEvents()"
-          [viewDate]="viewDate"
+          [viewDate]="viewDate()"
           [today]="today"
           [themeMode]="mode()"
           [baseColor]="base()"

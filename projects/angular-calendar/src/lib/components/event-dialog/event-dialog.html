@@ -40,6 +40,18 @@
               </dd>
             </div>
           }
+          @if (assigneeValue(ev); as assignee) {
+            <div class="cal-evd__row">
+              <dt>{{ intl.dialogAssignee }}</dt>
+              <dd>{{ assignee }}</dd>
+            </div>
+          }
+          @if (frequencyValue(ev); as frequency) {
+            <div class="cal-evd__row">
+              <dt>{{ intl.dialogFrequency }}</dt>
+              <dd>{{ frequency }}</dd>
+            </div>
+          }
           @if (resourceNames(ev); as names) {
             @if (names) {
               <div class="cal-evd__row">

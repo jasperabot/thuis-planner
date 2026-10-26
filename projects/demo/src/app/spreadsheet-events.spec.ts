@@ -16,7 +16,7 @@ describe('mapRowsToEvents', () => {
     expect(events).toHaveLength(1);
     expect(events[0]).toMatchObject({
       id: 'water-plants',
-      title: 'Water plants',
+      title: 'serre: Water plants',
       isReadonly: true,
       meta: {
         area: 'serre',
@@ -50,7 +50,7 @@ describe('mapRowsToEvents', () => {
 
     expect(events).toHaveLength(3);
     expect(events[0]).toMatchObject({
-      title: 'Vacuum clean',
+      title: 'serre: Vacuum clean',
       isReadonly: true,
       meta: {
         area: 'serre',

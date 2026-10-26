@@ -16,7 +16,7 @@ import {
   eventsToExcelXml,
   CalPrintService,
 } from '@ascentsparksoftware/angular-calendar/export';
-import { mapRowsToEvents, parseCsv } from '../../spreadsheet-events';
+import { mapRowsToEvents, parseCsv, parseExcel } from '../../spreadsheet-events';
 import {
   CalMonthView,
   CalTimeGridView,
@@ -132,9 +132,54 @@ export class Playground {
     void this.loadGoogleSheetCsv();
   }
 
-  protected readonly viewDate = z('2026-06-15T16:00:00Z');
-  protected readonly today = z('2026-06-15T16:00:00Z');
-  protected readonly now = z('2026-06-15T18:20:00Z'); // 14:20 EDT → visible now-line
+  private readonly initialNow = new Date();
+
+  protected readonly viewDate = signal<ZonedDateTime>(z(this.initialNow.toISOString()));
+  protected readonly today = z(this.initialNow.toISOString());
+  protected readonly now = z(this.initialNow.toISOString());
+
+  protected get monthLabel(): string {
+    return this.adapter.format(this.viewDate(), 'MMMM y', 'en-US');
+  }
+
+  protected get monthPickerValue(): string {
+    const formatted = new Intl.DateTimeFormat('en-CA', {
+      timeZone: this.viewDate().zone,
+      year: 'numeric',
+      month: '2-digit',
+    }).format(new Date(this.viewDate().epochMs));
+    return formatted;
+  }
+
+  protected previousMonth(): void {
+    this.viewDate.update((date) => this.adapter.addMonths(date, -1));
+  }
+
+  protected nextMonth(): void {
+    this.viewDate.update((date) => this.adapter.addMonths(date, 1));
+  }
+
+  protected goToToday(): void {
+    this.viewDate.set(this.adapter.toZoned(this.today, Z));
+  }
+
+  protected selectMonth(event: Event): void {
+    const value = (event.target as HTMLInputElement | null)?.value;
+    if (!value) {
+      return;
+    }
+
+    const [yearText, monthText] = value.split('-');
+    const year = Number(yearText);
+    const month = Number(monthText);
+
+    if (!Number.isFinite(year) || !Number.isFinite(month) || month < 1 || month > 12) {
+      return;
+    }
+
+    const localMonthStart = new Date(Date.UTC(year, month - 1, 1, 12));
+    this.viewDate.set(this.adapter.toZoned(localMonthStart, Z));
+  }
 
   protected readonly statusColors: Record<string, string> = {
     scheduled: '#3b82f6',
@@ -149,33 +194,88 @@ export class Playground {
   protected readonly spreadsheetEvents = signal<CalendarEvent[]>([]);
   protected readonly loadingSpreadsheet = signal(false);
   protected readonly spreadsheetError = signal<string | null>(null);
+  protected readonly sourceUrl = signal(GOOGLE_SHEET_CSV_URL);
+  protected readonly loading = signal(false);
+  protected readonly error = signal<string>('');
+  protected readonly importedCount = signal(0);
 
   private readonly printer = inject(CalPrintService);
 
-  protected async loadGoogleSheetCsv(): Promise<void> {
-    if (this.loadingSpreadsheet()) {
+  private async applyImportedRows(rows: Array<Record<string, unknown>>): Promise<void> {
+    const mapped = mapRowsToEvents(rows);
+    this.spreadsheetEvents.set(mapped);
+    this.importedCount.set(mapped.length);
+    this.spreadsheetError.set(null);
+    this.error.set('');
+  }
+
+  protected async loadPublishedCsv(): Promise<void> {
+    if (this.loading() || this.loadingSpreadsheet()) {
       return;
     }
 
+    this.loading.set(true);
     this.loadingSpreadsheet.set(true);
+    this.error.set('');
     this.spreadsheetError.set(null);
 
     try {
-      const response = await fetch(GOOGLE_SHEET_CSV_URL, { cache: 'no-store' });
+      const response = await fetch(this.sourceUrl(), { cache: 'no-store' });
       if (!response.ok) {
         throw new Error(`Failed to load Google Sheet: ${response.status}`);
       }
 
       const csv = await response.text();
       const rows = parseCsv(csv);
-      const mapped = mapRowsToEvents(rows);
-      this.spreadsheetEvents.set(mapped);
+      await this.applyImportedRows(rows);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown Google Sheet error';
+      const message = error instanceof Error ? error.message : 'Unknown spreadsheet error';
+      this.error.set(message);
       this.spreadsheetError.set(message);
     } finally {
+      this.loading.set(false);
       this.loadingSpreadsheet.set(false);
     }
+  }
+
+  protected async loadLocalFile(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+
+    if (!file || this.loading() || this.loadingSpreadsheet()) {
+      return;
+    }
+
+    this.loading.set(true);
+    this.loadingSpreadsheet.set(true);
+    this.error.set('');
+    this.spreadsheetError.set(null);
+
+    try {
+      const name = file.name.toLowerCase();
+      const buffer = await file.arrayBuffer();
+      const rows = name.endsWith('.csv')
+        ? parseCsv(new TextDecoder().decode(buffer))
+        : parseExcel(buffer);
+
+      this.sourceUrl.set(file.name);
+      await this.applyImportedRows(rows);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown spreadsheet error';
+      this.error.set(message);
+      this.spreadsheetError.set(message);
+    } finally {
+      this.loading.set(false);
+      this.loadingSpreadsheet.set(false);
+      if (input) {
+        input.value = '';
+      }
+    }
+  }
+
+  protected async loadGoogleSheetCsv(): Promise<void> {
+    this.sourceUrl.set(GOOGLE_SHEET_CSV_URL);
+    await this.loadPublishedCsv();
   }
 
   /** Trigger a browser download of a generated text blob. */
@@ -445,7 +545,7 @@ export class Playground {
 
   /** Sunday 00:00 (in zone Z) of the viewed week — the shared canonical day. */
   protected readonly weekRowAnchor = computed(() =>
-    this.adapter.startOfWeek(this.adapter.toZoned(this.viewDate, Z), 0),
+    this.adapter.startOfWeek(this.adapter.toZoned(this.viewDate(), Z), 0),
   );
 
   /**
