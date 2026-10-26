@@ -16,6 +16,7 @@ import {
   eventsToExcelXml,
   CalPrintService,
 } from '@ascentsparksoftware/angular-calendar/export';
+import { mapRowsToEvents, parseCsv } from '../../spreadsheet-events';
 import {
   CalMonthView,
   CalTimeGridView,
@@ -40,6 +41,8 @@ import {
 
 const Z = 'America/New_York';
 const z = (iso: string) => ({ epochMs: Date.parse(iso), zone: Z });
+const GOOGLE_SHEET_CSV_URL =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBAvliYEiqtZMerV2l_M2V-pmui7gJxyNbGkHOgz2uP_v01b87-BHAq3qB80-NQkjAoEUKf5W981KR/pub?gid=0&single=true&output=csv';
 
 @Component({
   selector: 'cal-playground',
@@ -125,6 +128,8 @@ export class Playground {
       ro.observe(this.host.nativeElement);
       effect((onCleanup) => onCleanup(() => ro.disconnect()));
     }
+
+    void this.loadGoogleSheetCsv();
   }
 
   protected readonly viewDate = z('2026-06-15T16:00:00Z');
@@ -141,8 +146,37 @@ export class Playground {
   protected readonly statusKeys = ['scheduled', 'active', 'done', 'cancelled'] as const;
   /** Active status filter (all on by default). */
   protected readonly activeStatuses = signal<ReadonlySet<string>>(new Set(this.statusKeys));
+  protected readonly spreadsheetEvents = signal<CalendarEvent[]>([]);
+  protected readonly loadingSpreadsheet = signal(false);
+  protected readonly spreadsheetError = signal<string | null>(null);
 
   private readonly printer = inject(CalPrintService);
+
+  protected async loadGoogleSheetCsv(): Promise<void> {
+    if (this.loadingSpreadsheet()) {
+      return;
+    }
+
+    this.loadingSpreadsheet.set(true);
+    this.spreadsheetError.set(null);
+
+    try {
+      const response = await fetch(GOOGLE_SHEET_CSV_URL, { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(`Failed to load Google Sheet: ${response.status}`);
+      }
+
+      const csv = await response.text();
+      const rows = parseCsv(csv);
+      const mapped = mapRowsToEvents(rows);
+      this.spreadsheetEvents.set(mapped);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown Google Sheet error';
+      this.spreadsheetError.set(message);
+    } finally {
+      this.loadingSpreadsheet.set(false);
+    }
+  }
 
   /** Trigger a browser download of a generated text blob. */
   private download(filename: string, mime: string, contents: string): void {
@@ -204,7 +238,7 @@ export class Playground {
 
   /** Events/jobs passed through the status filter (untagged kept). */
   protected readonly filteredEvents = computed(() =>
-    filterByStatus(this.events(), this.activeStatuses()),
+    filterByStatus([...this.events(), ...this.spreadsheetEvents()], this.activeStatuses()),
   );
   protected readonly filteredJobs = computed(() =>
     filterByStatus(this.jobs(), this.activeStatuses()),

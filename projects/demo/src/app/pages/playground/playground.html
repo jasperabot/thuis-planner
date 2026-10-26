@@ -81,7 +81,10 @@
       <button type="button" class="segment__btn" [class.segment__btn--on]="view() === 'year'" (click)="setView('year')" data-testid="view-year">Year</button>
     </div>
 
-    <div class="exports" role="group" aria-label="Export">
+    <div class="exports" role="group" aria-label="Spreadsheet load and export">
+      <button type="button" class="ghostbtn" (click)="loadGoogleSheetCsv()" [disabled]="loadingSpreadsheet()" data-testid="load-google-sheet">
+        {{ loadingSpreadsheet() ? 'Loading…' : 'Load Google Sheet' }}
+      </button>
       <button type="button" class="ghostbtn" (click)="printSchedule()" data-testid="export-print">Print</button>
       <button type="button" class="ghostbtn" (click)="exportCsv()" data-testid="export-csv">CSV</button>
       <button type="button" class="ghostbtn" (click)="exportExcel()" data-testid="export-excel">Excel</button>
@@ -89,6 +92,10 @@
       <button type="button" class="ghostbtn" (click)="toggleDensity()" data-testid="toggle-density" [attr.aria-pressed]="density() === 'compact'">{{ density() === 'compact' ? 'Cozy' : 'Compact' }}</button>
     </div>
   </nav>
+
+  @if (spreadsheetError(); as sheetError) {
+    <p class="banner" data-testid="sheet-error" role="alert">{{ sheetError }}</p>
+  }
 
   <div class="filters" role="group" aria-label="Filter by status">
     @for (s of statusKeys; track s) {
